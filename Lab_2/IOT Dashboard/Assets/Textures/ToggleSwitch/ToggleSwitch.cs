@@ -108,10 +108,13 @@ public class ToggleSwitch : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Toggle(!isOn);
-        if (onPress != null)
+        if (interactable)
         {
-            onPress(isOn);
+            Toggle(!isOn);
+            if (onPress != null)
+            {
+                onPress(isOn);
+            }
         }
     }
 }
