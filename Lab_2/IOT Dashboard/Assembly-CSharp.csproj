@@ -43,6 +43,7 @@
      <Compile Include="Assets\Scripts\Mqtt.cs" />
      <Compile Include="Assets\Scripts\ConnectManager.cs" />
      <Compile Include="Assets\Scripts\TimeManager.cs" />
+     <Compile Include="Assets\Scripts\Window_Graph.cs" />
     <Reference Include="UnityEngine">
         <HintPath>C:\Program Files\2020.3.26f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>

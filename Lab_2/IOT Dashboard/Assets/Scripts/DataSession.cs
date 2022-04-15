@@ -12,35 +12,12 @@ public class DataSession : MonoBehaviour
 
 public class StatusData
 {
-    public class __data
-    {
-        public int temperature { get; set; }
-        public int humidity { get; set; }
-    }
-    public class __device
-    {
-        public class __led
-        {
-            public bool isOn { get; set; }
-        }
-        public class __pump
-        {
-            public bool isOn { get; set; }
-        }
-        public __led LED;
-        public __pump Pump;
-        public __device()
-        {
-            this.LED = new __led();
-            this.Pump = new __pump();
-        }
-    }
-    public __data Data;
-    public __device Device;
+    public string temperature { get; set; }
+    public string humidity { get; set; }
+}
 
-    public StatusData()
-    {
-        this.Data = new __data();
-        this.Device = new __device();
-    }
+public class DeviceData
+{
+    public string name { get; set; }
+    public bool isOn { get; set; }
 }

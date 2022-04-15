@@ -14,13 +14,17 @@ namespace Dashboard
     public class Mqtt : M2MqttUnityClient
     {
         [SerializeField]
-        public StatusData statusData;
+        public StatusData statusData = new StatusData();
+        public DeviceData ledData = new DeviceData();
+        public DeviceData pumpData = new DeviceData();
+        private System.Random rnd;
         private Dictionary<string, Action<string>> topicHandlers = new Dictionary<string, Action<string>>();
 
         protected override void Start()
         {
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 240;
+            this.rnd = new System.Random();
 
             this.SetUpMQTT();
             this.Connect();
@@ -105,25 +109,32 @@ namespace Dashboard
         IEnumerator PublishData()
         {
             StatusData status = new StatusData();
-            status.Data.temperature = 10;
-            status.Data.humidity = 5;
-            status.Device.LED.isOn = false;
-            status.Device.Pump.isOn = false;
+            DeviceData led = new DeviceData();
+            DeviceData pump = new DeviceData();
+            status.temperature = "0";
+            status.humidity = "0";
+            led.name = "LED";
+            led.isOn = false;
+            pump.name = "Pump";
+            pumpData.isOn = false;
             while (!DataSession.isConnected)
             {
                 yield return new WaitForSeconds(0.1f);
             }
-            string dataToPublish = JsonConvert.SerializeObject(status);
+            string dataToPublish;
+            dataToPublish = JsonConvert.SerializeObject(status);
             client.Publish("/bkiot/1911056/status", System.Text.Encoding.UTF8.GetBytes(dataToPublish), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
+            dataToPublish = JsonConvert.SerializeObject(led);
+            client.Publish("/bkiot/1911056/led", System.Text.Encoding.UTF8.GetBytes(dataToPublish), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
+            dataToPublish = JsonConvert.SerializeObject(pump);
+            client.Publish("/bkiot/1911056/pump", System.Text.Encoding.UTF8.GetBytes(dataToPublish), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
             while (true)
             {
-                status.Data.temperature = 10;
-                status.Data.humidity = 5;
-                status.Device.LED.isOn = false;
-                status.Device.Pump.isOn = false;
+                status.temperature = rnd.Next(0, 39).ToString();
+                status.humidity = rnd.Next(0, 100).ToString();
                 dataToPublish = JsonConvert.SerializeObject(status);
                 client.Publish("/bkiot/1911056/status", System.Text.Encoding.UTF8.GetBytes(dataToPublish), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSeconds(2f);
             }
         }
 
@@ -136,14 +147,29 @@ namespace Dashboard
 
         private void ProcessMessageLed(string msg)
         {
-            // SetMessage("Received: " + msg);
-            Debug.Log("Processing LED");
+            Debug.Log("Processing LED: " + msg);
+            ledData = JsonConvert.DeserializeObject<DeviceData>(msg);
+            GetComponent<DashboardManager>().UpdateLED(ledData);
         }
 
         private void ProcessMessagePump(string msg)
         {
-            // SetMessage("Received: " + msg);
-            Debug.Log("Processing pump");
+            Debug.Log("Processing pump: " + msg);
+            pumpData = JsonConvert.DeserializeObject<DeviceData>(msg);
+            GetComponent<DashboardManager>().UpdatePump(pumpData);
+        }
+
+        public void PublishLED()
+        {
+            ledData = GetComponent<DashboardManager>().onLEDHandler(ledData);
+            string msg_config = JsonConvert.SerializeObject(ledData);
+            client.Publish("/bkiot/1911056/led", System.Text.Encoding.UTF8.GetBytes(msg_config), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
+        }
+        public void PublishPump()
+        {
+            pumpData = GetComponent<DashboardManager>().onPumpHandler(pumpData);
+            string msg_config = JsonConvert.SerializeObject(pumpData);
+            client.Publish("/bkiot/1911056/pump", System.Text.Encoding.UTF8.GetBytes(msg_config), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
         }
 
         private void SetUpMQTT()
