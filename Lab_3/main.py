@@ -16,7 +16,7 @@ print("Iot_Gateway")
 
 BROKER_ADDRESS = "demo.thingsboard.io"
 PORT = 1883
-THINGS_BOARD_ACCESS_TOKEN = "R5AX5OWilCPYXRwfUoxJ"
+THINGS_BOARD_ACCESS_TOKEN = "vjbvCspr9EUMCvqUBhwc"
 
 
 def subscribed(client, userdata, mid, granted_qos):
