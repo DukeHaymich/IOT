@@ -42,8 +42,8 @@ def recv_message(client, userdata, message):
                 cmd = 0
             client.publish('v1/devices/me/attributes',
                            json.dumps(temp_data), 1)
-        if jsonobj['method'] == "setPUMP":
-            temp_data['valuePUMP'] = jsonobj['params']
+        if jsonobj['method'] == "setFan":
+            temp_data['valueFan'] = jsonobj['params']
             if jsonobj['params'] == True:
                 cmd = 3
             else:
